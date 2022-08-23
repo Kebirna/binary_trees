@@ -1,77 +1,116 @@
 #include "binary_trees.h"
 
 /**
- * binary_tree_size - measures the size of a binary tree
- * @tree: input binary tree
- * Return: number of descendant child nodes
+ * binary_tree_is_full - checks if a tree is full.
+ *
+ * @tree: root node.
+ * Return: 1 if full or 0 if not
  */
-size_t binary_tree_size(const binary_tree_t *tree)
+int binary_tree_is_full(const binary_tree_t *tree)
 {
 	if (!tree)
+		return (1);
+	if (!binary_tree_is_full(tree->left))
 		return (0);
-
-	return (1 + binary_tree_size(tree->left) + binary_tree_size(tree->right));
+	if (!binary_tree_is_full(tree->right))
+		return (0);
+	if ((tree->left && !tree->right) || (!tree->left && tree->right))
+		return (0);
+	return (1);
 }
 
 /**
- * is_complete - helper func for binary_tree_is_complete
- * @tree: pointer to root of tree
- * @index: index of current node to be verified
- * @size: total number of nodes in tree
- * Return: 1 if true 0 if false
+ * height_recursion - function that calculates the height using recursion
+ *
+ * @tree: node to find recursion
+ * Return: the number of height nodes
  */
-_Bool is_complete(const binary_tree_t *tree, unsigned int index, size_t size)
+
+size_t height_recursion(const binary_tree_t *tree)
 {
-	if (!tree)
-		return (true);
+	size_t left_count = 0, right_count = 0;
 
-	if (index >= size)
-		return (false);
-
-	return (is_complete(tree->left, 2 * index + 1, size) &&
-			is_complete(tree->right, 2 * index + 2, size));
+	if (tree->left)
+		left_count = height_recursion(tree->left);
+	if (tree->right)
+		right_count = height_recursion(tree->right);
+	return ((left_count > right_count) ? left_count + 1 : right_count + 1);
 }
 
-
 /**
- * binary_tree_is_complete - checks if a binary tree is complete
- * @tree: pointer to root of tree
- * Return: 1 if true 0 if false
+ * binary_tree_balance - returns the balance of a tree
+ * @tree: is the node from which to get the node
+ * Return: an integer with the height or 0 if node is null
+ */
+int binary_tree_balance(const binary_tree_t *tree)
+{
+	int left = 0, right = 0;
+
+	if (tree)
+	{
+		if (tree->left)
+			left = height_recursion(tree->left);
+		if (tree->right)
+			right = height_recursion(tree->right);
+		return (left - right);
+	}
+	else
+		return (0);
+}
+/**
+ * binary_tree_is_complete - returns 1 if the tree is complete
+ * @tree: is the node from which to get the tree
+ *
+ * Return: 1 if is complete, 0 if doesn't
  */
 int binary_tree_is_complete(const binary_tree_t *tree)
 {
-	size_t size;
-	unsigned int i = 0;
+	int complete_left = 1, complete_right = 1;
 
 	if (!tree)
 		return (0);
-
-	size = binary_tree_size(tree);
-	return (is_complete(tree, i, size));
+	if (tree->left)
+		complete_left = binary_tree_is_complete(tree->left);
+	if (tree->right)
+		complete_right = binary_tree_is_complete(tree->right);
+	if (binary_tree_balance(tree) == 1)
+		return (complete_left * complete_right);
+	if (!binary_tree_balance(tree))
+	{
+		if (!tree->right || (tree->left &&
+		binary_tree_is_full(tree->left) && !binary_tree_balance(tree->left)))
+			return (complete_left * complete_right);
+		else
+			return (0);
+	}
+	return (0);
 }
-
-_Bool is_heap(const binary_tree_t *tree)
-{
-	if (!tree->left && !tree->right)
-		return (true);
-	if (!tree->right)
-		return (tree->n >= tree->left->n);
-	if (tree->n >= tree->left->n && tree->n >= tree->right->n)
-		return (is_heap(tree->left) && is_heap(tree->right));
-	else
-		return (false);
-}
-
-
 /**
- * binary_tree_is_heap - checks if a binary tree is a valid Max Binary Heap
- * @tree: pointer to root of tree
- * Return: 1 if true 0 if false
+ * binary_tree_is_heap - returns 1 if a tree is a binary heap
+ * @tree: pointer to the root of the tree
+ * Return: 1 if binary heap, 0 if not
  */
 int binary_tree_is_heap(const binary_tree_t *tree)
 {
+	int left_res = 1, right_res = 1;
+
 	if (!tree)
 		return (0);
 
-	return (binary_tree_is_complete(tree) && is_heap(tree));
+	if (!binary_tree_is_complete(tree))
+		return (0);
+
+	if (tree->left)
+	{
+		if (tree->left->n >= tree->n)
+			return (0);
+		left_res = binary_tree_is_heap(tree->left);
+	}
+	if (tree->right)
+	{
+		if (tree->right->n >= tree->n)
+			return (0);
+		right_res = binary_tree_is_heap(tree->right);
+	}
+	return (left_res * right_res);
 }
