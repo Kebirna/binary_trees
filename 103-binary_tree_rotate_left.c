@@ -2,39 +2,23 @@
 
 /**
  * binary_tree_rotate_left - performs a left-rotation on a binary tree
- * @tree: pointer to root of tree
- * Return: pointer to the new root node of the tree once rotated
+ * @tree: pointer to the root node of the tree to rotate
+ *
+ * Return: a pointer to the new root node of the tree once rotated
  */
 binary_tree_t *binary_tree_rotate_left(binary_tree_t *tree)
 {
-	binary_tree_t *tmp, *root_parent;
-	_Bool root_leftchild = false;
-
-	if (!tree)
+	if (tree == NULL)
 		return (NULL);
-	tmp = tree->right;
-	if (tmp)
+	tree->parent = tree->right;
+	if (tree->right)
 	{
-		root_parent = tree->parent;
-		if (root_parent)
-			root_leftchild = tree->parent->left == tree;
-
-		tree->right = tmp->left;
-		if (tmp->left)
-			tmp->left->parent = tree;
-		tree->parent = tmp;
-
-		tmp->left = tree;
-		tmp->parent = root_parent;
-		if (root_parent)
-		{
-			if (root_leftchild)
-				root_parent->left = tmp;
-			else
-				root_parent->right = tmp;
-		}
+		tree->right = tree->right->left;
+		tree->parent->left = tree;
+		tree->parent->parent = NULL;
+		if (tree->right)
+			tree->right->parent = tree;
+		return (tree->parent);
 	}
-	while (tree->parent)
-		tree = tree->parent;
 	return (tree);
 }
