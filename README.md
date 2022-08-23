@@ -12,4 +12,4 @@ Be able to explain to anyone:
  - What is a complete, a full, a perfect, a balanced binary tree
 
 ## Author
- - [Stephen Makenzi Waweru](https://github.com/StephenMakenziWaweru/)
+ - [Kebirna Berihun]
